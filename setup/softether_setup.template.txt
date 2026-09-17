@@ -1,0 +1,47 @@
+# ============================================================================
+# PLANTILLA de comandos vpncmd — rellenada por setup/softether_setup.py
+# a partir de las respuestas del Setup Wizard de Telegram.
+#
+# NO editar los marcadores {{ }} a mano en este archivo: softether_setup.py
+# genera un softether_setup.generated.txt con los valores reales y ejecuta
+# ESE archivo vía "vpncmd localhost /SERVER /IN:softether_setup.generated.txt"
+# ============================================================================
+
+ServerPasswordSet
+{{SOFTETHER_ADMIN_PASSWORD}}
+{{SOFTETHER_ADMIN_PASSWORD}}
+
+HubDelete DEFAULT
+
+HubCreate {{HUB_NAME}} /PASSWORD:{{SOFTETHER_HUB_PASSWORD}}
+
+Hub {{HUB_NAME}}
+
+BridgeCreate {{HUB_NAME}} /DEVICE:{{TAP_DEVICE_NAME}} /TAP:yes
+
+GroupCreate pendientes /REALNAME:"Sin acceso - pago no validado" /NOTE:"Grupo de espera, sin acceso a LAN"
+GroupCreate aprobados /REALNAME:"Acceso activo - pago validado" /NOTE:"Grupo con acceso a LAN, contrato de {{CONTRACT_DURATION_DAYS}} dias"
+
+PolicySet pendientes /NAME:Access /VALUE:no
+PolicySet pendientes /NAME:NoRouting /VALUE:yes
+PolicySet pendientes /NAME:MaxConnection /VALUE:1
+
+PolicySet aprobados /NAME:Access /VALUE:yes
+PolicySet aprobados /NAME:NoRouting /VALUE:no
+PolicySet aprobados /NAME:MaxConnection /VALUE:3
+PolicySet aprobados /NAME:MaxUpload /VALUE:1500000
+PolicySet aprobados /NAME:MaxDownload /VALUE:1500000
+
+SecureNatDisable
+
+Hub
+
+exit
+
+# ============================================================================
+# NOTA — DHCP: a propósito NO se incluye "DhcpSet" aquí (esa función
+# pertenece a SecureNAT, que dejamos deshabilitado). El reparto de IPs
+# de la LAN virtual lo hace dnsmasq como servicio del sistema operativo,
+# configurado por setup/network_setup.py sobre la interfaz TAP creada
+# arriba. Ver network_setup.py para el detalle.
+# ============================================================================
